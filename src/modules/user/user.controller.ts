@@ -9,31 +9,37 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
-import { User, UserResponse } from './interfaces/user.interface';
+import { UserResponse } from './interfaces/user.interface';
 import { UsersService } from './user.service';
-import { CreateUser } from './interfaces/create-user';
-import { UpdatePassword } from './interfaces/update-password.interface';
 
 @Controller('user')
 export class UserController {
   constructor(private usersService: UsersService) {}
 
   @Get()
-  async findAllUsers(): Promise<string> {
-    await this.usersService.findAll();
-    return 'answer';
+  async findAllUsers(): Promise<UserResponse[]> {
+    try {
+      const users = await this.usersService.findAll();
+      return users;
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   @Get(':id')
-  async findUserById(@Param('id') id: string): Promise<string> {
-    await this.usersService.findById(id);
-    return `answer ${id}`;
+  async findUserById(@Param('id') id: string): Promise<UserResponse> {
+    try {
+      return await this.usersService.findById(id);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   @Post()
   async createUser(@Body() body: CreateUserDto): Promise<UserResponse> {
-    await this.usersService.createUser(body as CreateUser);
-    return {} as UserResponse;
+    try {
+      return await this.usersService.createUser(body);
+    } catch (error) {}
   }
 
   @Put(':id')
@@ -41,12 +47,15 @@ export class UserController {
     @Param('id') id: string,
     @Body() body: UpdatePasswordDto,
   ): Promise<UserResponse> {
-    await this.usersService.update(id, body as UpdatePassword);
-    return {} as UserResponse;
+    try {
+      return await this.usersService.update(id, body);
+    } catch (error) {}
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string): Promise<void> {
-    return;
+  async remove(@Param('id') id: string): Promise<void> {
+    try {
+      await this.usersService.deleteUser(id);
+    } catch (error) {}
   }
 }
