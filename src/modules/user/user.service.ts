@@ -1,14 +1,18 @@
-import { Injectable } from '@nestjs/common';
-import { User, UserResponse } from './interfaces/user.interface';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
+import {
+  UpdateUserResponse,
+  User,
+  UserResponse,
+} from './interfaces/user.interface';
 import { CreateUserDto } from './dto/create-user.dto';
 
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { IUsersService } from './interfaces/users-service.interface';
-import { InMemoryUsersStore } from './store/users-store';
+import { IUserStore } from './interfaces/users-store.interface';
 
 @Injectable()
 export class UsersService implements IUsersService {
-  constructor(private store: InMemoryUsersStore) {}
+  constructor(@Inject('UserStore') private store: IUserStore) {}
 
   async createUser(user: CreateUserDto): Promise<UserResponse> {
     try {
@@ -22,8 +26,8 @@ export class UsersService implements IUsersService {
     try {
       const users = await this.store.getUsers();
       return users.map((user) => {
-        const { password, ...restUserData } = user;
-        return restUserData;
+        delete user.password;
+        return user;
       });
     } catch (error) {}
   }
@@ -32,26 +36,26 @@ export class UsersService implements IUsersService {
     try {
       const foundUser = await this.store.findById(id);
       if (!foundUser) return null;
-      const { password, ...restUserData } = foundUser;
-      return restUserData;
+      delete foundUser.password;
+
+      return foundUser;
     } catch (error) {}
   }
 
   async update(
     id: string,
     info: UpdatePasswordDto,
-  ): Promise<UserResponse | null> {
+  ): Promise<UpdateUserResponse> {
     try {
       const foundUser = await this.store.findById(id);
-      if (!foundUser) return null;
+      if (!foundUser) return { data: null, status: HttpStatus.NOT_FOUND };
 
       const isPasswordValid = this.validateUserPassword(
         foundUser,
         info.oldPassword,
       );
       if (!isPasswordValid) {
-        //TODO validate oldPassword
-        return null;
+        return { data: null, status: HttpStatus.FORBIDDEN };
       }
 
       const updatedUser: User = {
@@ -61,12 +65,15 @@ export class UsersService implements IUsersService {
 
       const result = await this.store.update(updatedUser);
 
-      if (!result) return null;
+      if (!result)
+        return { data: null, status: HttpStatus.INTERNAL_SERVER_ERROR };
 
-      const { password, ...newUserWithoutPassword } = result;
+      delete result.password;
 
-      return newUserWithoutPassword;
-    } catch (error) {}
+      return { data: result, status: HttpStatus.OK };
+    } catch (error) {
+      return { data: null, status: HttpStatus.INTERNAL_SERVER_ERROR };
+    }
   }
 
   async deleteUser(id: string): Promise<void> {
