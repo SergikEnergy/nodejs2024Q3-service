@@ -1,26 +1,44 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
+import { ITrackStore } from './interfaces/track-store.interface';
+import { ITrackService } from './interfaces/track-service.interface';
+import { ITrack } from './interfaces/track.interface';
 
 @Injectable()
-export class TrackService {
-  create(createTrackDto: CreateTrackDto) {
-    return 'This action adds a new track';
+export class TrackService implements ITrackService {
+  constructor(@Inject('TrackService') private readonly store: ITrackStore) {}
+
+  async findAll(): Promise<ITrack[]> {
+    try {
+      return await this.store.getTracks();
+    } catch (error) {}
   }
 
-  findAll() {
-    return `This action returns all track`;
+  async findById(id: string): Promise<ITrack | null> {
+    try {
+      return await this.store.findById(id);
+    } catch (error) {}
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} track`;
+  async createTrack(track: CreateTrackDto): Promise<ITrack> {
+    try {
+      return await this.store.create(track);
+    } catch (error) {}
   }
 
-  update(id: number, updateTrackDto: UpdateTrackDto) {
-    return `This action updates a #${id} track`;
+  async update(id: string, info: UpdateTrackDto): Promise<ITrack> {
+    try {
+      return await this.store.update({ id, ...info });
+    } catch (error) {}
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} track`;
+  async deleteTrack(id: string): Promise<boolean> {
+    try {
+      await this.store.deleteById(id);
+      return true;
+    } catch {
+      return false;
+    }
   }
 }

@@ -7,7 +7,8 @@ import { IAlbumStore } from './interfaces/album-store.interface';
 
 @Injectable()
 export class AlbumService implements IAlbumService {
-  constructor(@Inject('AlbumService') private store: IAlbumStore) {}
+  constructor(@Inject('AlbumService') private readonly store: IAlbumStore) {}
+
   async findAll(): Promise<IAlbum[]> {
     try {
       return await this.store.getAlbums();
@@ -33,7 +34,8 @@ export class AlbumService implements IAlbumService {
   }
   async deleteAlbum(id: string): Promise<boolean> {
     try {
-      return await this.store.deleteById(id);
+      await this.store.deleteById(id);
+      return true;
     } catch (error) {
       return false;
     }
