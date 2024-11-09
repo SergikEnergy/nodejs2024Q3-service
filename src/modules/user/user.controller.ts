@@ -20,7 +20,7 @@ import { NotFoundException } from '@nestjs/common';
 
 @Controller('user')
 export class UserController {
-  constructor(private usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) {}
 
   @Get()
   async findAllUsers(): Promise<UserResponse[]> {

@@ -59,6 +59,8 @@ export class InMemoryUsersStore implements IUserStore {
     try {
       this.users = this.users.filter((user) => user.id !== id);
       return true;
-    } catch (error) {}
+    } catch (error) {
+      return false;
+    }
   }
 }
