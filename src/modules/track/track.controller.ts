@@ -13,10 +13,14 @@ import { TrackService } from './track.service';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
 import { ValidateUUIDPipe } from '../../common/validation/validate-uuid';
+import { FavsService } from '../favs/favs.service';
 
 @Controller('track')
 export class TrackController {
-  constructor(private readonly trackService: TrackService) {}
+  constructor(
+    private readonly trackService: TrackService,
+    private readonly favsService: FavsService,
+  ) {}
 
   @Get()
   async findAll() {
@@ -60,6 +64,9 @@ export class TrackController {
     if (!foundTrack)
       throw new NotFoundException(`Track with id:${id} not found!`);
 
-    return await this.trackService.deleteTrack(id);
+    await Promise.all([
+      this.trackService.deleteTrack(id),
+      this.favsService.deleteTrack(id),
+    ]);
   }
 }

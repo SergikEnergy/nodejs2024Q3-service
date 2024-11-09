@@ -7,7 +7,7 @@ import { IAlbumStore } from './interfaces/album-store.interface';
 
 @Injectable()
 export class AlbumService implements IAlbumService {
-  constructor(@Inject('AlbumService') private readonly store: IAlbumStore) {}
+  constructor(@Inject('AlbumStore') private readonly store: IAlbumStore) {}
 
   async findAll(): Promise<IAlbum[]> {
     try {

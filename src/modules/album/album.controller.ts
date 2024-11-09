@@ -13,10 +13,14 @@ import { AlbumService } from './album.service';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
 import { ValidateUUIDPipe } from '../../common/validation/validate-uuid';
+import { FavsService } from '../favs/favs.service';
 
 @Controller('album')
 export class AlbumController {
-  constructor(private readonly albumService: AlbumService) {}
+  constructor(
+    private readonly albumService: AlbumService,
+    private readonly favsService: FavsService,
+  ) {}
 
   @Get()
   async findAll() {
@@ -60,6 +64,9 @@ export class AlbumController {
     if (!foundAlbum)
       throw new NotFoundException(`Album with id:${id} not found!`);
 
-    return await this.albumService.deleteAlbum(id);
+    await Promise.all([
+      this.albumService.deleteAlbum(id),
+      this.favsService.deleteAlbum(id),
+    ]);
   }
 }

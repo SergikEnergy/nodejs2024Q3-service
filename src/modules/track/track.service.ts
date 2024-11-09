@@ -7,7 +7,7 @@ import { ITrack } from './interfaces/track.interface';
 
 @Injectable()
 export class TrackService implements ITrackService {
-  constructor(@Inject('TrackService') private readonly store: ITrackStore) {}
+  constructor(@Inject('TrackStore') private readonly store: ITrackStore) {}
 
   async findAll(): Promise<ITrack[]> {
     try {

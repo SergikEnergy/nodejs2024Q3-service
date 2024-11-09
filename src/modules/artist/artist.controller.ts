@@ -14,10 +14,14 @@ import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
 import { ValidateUUIDPipe } from '../../common/validation/validate-uuid';
 import { IArtist } from './interfaces/artist.interface';
+import { FavsService } from '../favs/favs.service';
 
 @Controller('artist')
 export class ArtistController {
-  constructor(private readonly artistService: ArtistService) {}
+  constructor(
+    private readonly artistService: ArtistService,
+    private readonly favsService: FavsService,
+  ) {}
 
   @Get()
   async findAll(): Promise<IArtist[]> {
@@ -61,6 +65,10 @@ export class ArtistController {
     if (!foundArtist) {
       throw new NotFoundException(`Artist with id:${id} not found!`);
     }
-    return await this.artistService.deleteArtist(id);
+
+    await Promise.all([
+      this.artistService.deleteArtist(id),
+      this.favsService.deleteArtist(id),
+    ]);
   }
 }
