@@ -16,7 +16,10 @@ import { AlbumService } from '../album/album.service';
 import { TrackService } from '../track/track.service';
 import { Response } from 'express';
 import { NotFoundResourceException } from '../../common/exceptions/not-found-resource-exception';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { FavoritesSwaggerResponse } from './interfaces/favorites-swagger';
 
+@ApiTags('Favorites')
 @Controller('favs')
 export class FavsController {
   constructor(
@@ -26,11 +29,28 @@ export class FavsController {
     private readonly tracksService: TrackService,
   ) {}
 
+  @ApiOperation({ summary: 'Get favorites collection' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Returns all stored notes',
+    type: FavoritesSwaggerResponse,
+  })
   @Get()
   async findAll() {
     return await this.favsService.getAll();
   }
 
+  @ApiOperation({ summary: 'Add track to favorites' })
+  @ApiParam({ name: 'id', type: 'string', format: 'uuid' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Track added to favorites',
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid UUID' })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Not found track in database',
+  })
   @Post('track/:id')
   async addTrack(
     @Param('id', new ValidateUUIDPipe({ version: '4' })) id: string,
@@ -46,6 +66,17 @@ export class FavsController {
     });
   }
 
+  @ApiOperation({ summary: 'delete track from favorites' })
+  @ApiParam({ name: 'id', type: 'string', format: 'uuid' })
+  @ApiResponse({
+    status: HttpStatus.NO_CONTENT,
+    description: 'Track deleted from favorites',
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid UUID' })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Not found track in database',
+  })
   @Delete('track/:id')
   @HttpCode(204)
   async removeTrack(
@@ -60,6 +91,17 @@ export class FavsController {
     await this.favsService.deleteTrack(id);
   }
 
+  @ApiOperation({ summary: 'Add album to favorites' })
+  @ApiParam({ name: 'id', type: 'string', format: 'uuid' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Album added to favorites',
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid UUID' })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Not found album in database',
+  })
   @Post('album/:id')
   async addAlbum(
     @Param('id', new ValidateUUIDPipe({ version: '4' })) id: string,
@@ -75,6 +117,17 @@ export class FavsController {
     });
   }
 
+  @ApiOperation({ summary: 'delete album from favorites' })
+  @ApiParam({ name: 'id', type: 'string', format: 'uuid' })
+  @ApiResponse({
+    status: HttpStatus.NO_CONTENT,
+    description: 'Album deleted from favorites',
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid UUID' })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Not found album in database',
+  })
   @Delete('album/:id')
   @HttpCode(204)
   async removeAlbum(
@@ -89,6 +142,17 @@ export class FavsController {
     await this.favsService.deleteAlbum(id);
   }
 
+  @ApiOperation({ summary: 'Add artist to favorites' })
+  @ApiParam({ name: 'id', type: 'string', format: 'uuid' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Artist added to favorites',
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid UUID' })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Not found artist in database',
+  })
   @Post('artist/:id')
   async addArtist(
     @Param('id', new ValidateUUIDPipe({ version: '4' })) id: string,
@@ -105,6 +169,17 @@ export class FavsController {
     });
   }
 
+  @ApiOperation({ summary: 'delete artist from favorites' })
+  @ApiParam({ name: 'id', type: 'string', format: 'uuid' })
+  @ApiResponse({
+    status: HttpStatus.NO_CONTENT,
+    description: 'Artist deleted from favorites',
+  })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid UUID' })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Not found artist in database',
+  })
   @Delete('artist/:id')
   @HttpCode(204)
   async removeArtist(
