@@ -38,17 +38,18 @@ export class InMemoryUsersStore implements IUserStore {
   async update(user: User): Promise<User | null> {
     try {
       const users = await this.getUsers();
-      const userIndex = users.findIndex((item) => item.id === user.id);
+      const userIndex = users.findIndex(
+        (userInStore) => userInStore.id === user.id,
+      );
       if (userIndex === -1) return null;
 
-      const updatedUser = {
+      const updatedUser: User = {
         ...user,
         updatedAt: Date.now(),
-        version: user.version++,
+        version: ++user.version,
       };
 
       users.splice(userIndex, 1, updatedUser);
-
       this.users = users;
 
       return updatedUser;

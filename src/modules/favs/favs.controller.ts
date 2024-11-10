@@ -86,7 +86,7 @@ export class FavsController {
         `Album with id:${id} was not found in favorites!`,
       );
     }
-    await this.favsService.deleteTrack(id);
+    await this.favsService.deleteAlbum(id);
   }
 
   @Post('artist/:id')
@@ -98,6 +98,7 @@ export class FavsController {
     if (!artistInfo) {
       throw new NotFoundResourceException('artist', id);
     }
+
     await this.favsService.addArtist(artistInfo);
     res.status(HttpStatus.CREATED).json({
       message: `Artist with id:${id} was added to favorites collection.`,
@@ -109,12 +110,11 @@ export class FavsController {
   async removeArtist(
     @Param('id', new ValidateUUIDPipe({ version: '4' })) id: string,
   ) {
-    const isArtistInFavs = await this.favsService.findArtist(id);
-    if (!isArtistInFavs) {
-      throw new NotFoundException(
-        `Artist with id:${id} was not found in favorites!`,
-      );
+    const artistExist = await this.favsService.findArtist(id);
+    if (!artistExist) {
+      throw new NotFoundResourceException('artist', id);
     }
+
     await this.favsService.deleteArtist(id);
   }
 }

@@ -48,9 +48,10 @@ export class TrackController {
     @Param('id', new ValidateUUIDPipe({ version: '4' })) id: string,
     @Body() updateTrackDto: UpdateTrackDto,
   ) {
-    const foundTrack = await this.trackService.findById(id);
-    if (!foundTrack)
+    const trackInfo = await this.trackService.findById(id);
+    if (!trackInfo) {
       throw new NotFoundException(`Track with id:${id} not found!`);
+    }
 
     return await this.trackService.update(id, updateTrackDto);
   }
@@ -60,9 +61,10 @@ export class TrackController {
   async remove(
     @Param('id', new ValidateUUIDPipe({ version: '4' })) id: string,
   ) {
-    const foundTrack = await this.trackService.findById(id);
-    if (!foundTrack)
+    const trackInfo = await this.trackService.findById(id);
+    if (!trackInfo) {
       throw new NotFoundException(`Track with id:${id} not found!`);
+    }
 
     await Promise.all([
       this.trackService.deleteTrack(id),

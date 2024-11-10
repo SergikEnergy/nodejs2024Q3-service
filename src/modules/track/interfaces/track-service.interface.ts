@@ -7,5 +7,7 @@ export interface ITrackService {
   findAll(): Promise<ITrack[]>;
   findById(id: string): Promise<ITrack | null>;
   update(id: string, info: UpdateTrackDto): Promise<ITrack>;
+  resetAlbumIdInTracks(albumId: string): Promise<boolean>;
+  resetArtistIdInTracks(artistId: string): Promise<boolean>;
   deleteTrack(id: string): Promise<boolean>;
 }

@@ -60,4 +60,26 @@ export class InMemoryTrackStore implements ITrackStore {
       return false;
     }
   }
+
+  async resetAlbumIdsInTracks(albumId: string): Promise<boolean> {
+    try {
+      this.tracks = this.tracks.map((track) => {
+        if (track.albumId !== albumId) return track;
+        return { ...track, albumId: null };
+      });
+    } catch (error) {
+      return false;
+    }
+  }
+
+  async resetArtistIdsInTracks(artistId: string): Promise<boolean> {
+    try {
+      this.tracks = this.tracks.map((track) => {
+        if (track.artistId !== artistId) return track;
+        return { ...track, artistId: null };
+      });
+    } catch (error) {
+      return false;
+    }
+  }
 }

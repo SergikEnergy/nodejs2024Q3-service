@@ -62,4 +62,15 @@ export class InMemoryAlbumsStore implements IAlbumStore {
       return false;
     }
   }
+
+  async removeArtistIdFromAlbum(artistId: string): Promise<boolean> {
+    try {
+      this.albums = this.albums.map((album) => {
+        if (album.artistId !== artistId) return album;
+        return { ...album, artistId: null };
+      });
+    } catch (error) {
+      return false;
+    }
+  }
 }

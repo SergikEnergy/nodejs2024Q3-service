@@ -66,9 +66,10 @@ export class UserController {
   async remove(
     @Param('id', new ValidateUUIDPipe({ version: '4' })) id: string,
   ): Promise<void> {
-    const foundUser = this.findUserById(id);
-    if (!foundUser)
+    const userInfo = await this.usersService.findById(id);
+    if (!userInfo) {
       throw new NotFoundException(`User with id:${id} not found!`);
+    }
 
     await this.usersService.deleteUser(id);
   }

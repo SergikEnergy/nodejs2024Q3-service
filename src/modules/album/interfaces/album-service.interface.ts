@@ -8,4 +8,5 @@ export interface IAlbumService {
   findById(id: string): Promise<IAlbum | null>;
   update(id: string, info: UpdateAlbumDto): Promise<IAlbum>;
   deleteAlbum(id: string): Promise<boolean>;
+  removeArtistId(artistId: string): Promise<boolean>;
 }

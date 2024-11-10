@@ -41,4 +41,20 @@ export class TrackService implements ITrackService {
       return false;
     }
   }
+
+  async resetAlbumIdInTracks(albumId: string): Promise<boolean> {
+    try {
+      return await this.store.resetAlbumIdsInTracks(albumId);
+    } catch (error) {
+      return false;
+    }
+  }
+
+  async resetArtistIdInTracks(artistId: string): Promise<boolean> {
+    try {
+      return await this.store.resetArtistIdsInTracks(artistId);
+    } catch (error) {
+      return false;
+    }
+  }
 }

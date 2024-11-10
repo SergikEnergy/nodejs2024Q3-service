@@ -4,6 +4,8 @@ import { ArtistController } from './artist.controller';
 import { ValidateUUIDPipe } from '../../common/validation/validate-uuid';
 import { InMemoryArtistsStore } from './store/artists.store';
 import { FavsModule } from '../favs/favs.module';
+import { TrackModule } from '../track/track.module';
+import { AlbumModule } from '../album/album.module';
 
 @Module({
   controllers: [ArtistController],
@@ -13,6 +15,10 @@ import { FavsModule } from '../favs/favs.module';
     ValidateUUIDPipe,
   ],
   exports: [ArtistService],
-  imports: [forwardRef(() => FavsModule)],
+  imports: [
+    forwardRef(() => FavsModule),
+    forwardRef(() => TrackModule),
+    forwardRef(() => AlbumModule),
+  ],
 })
 export class ArtistModule {}

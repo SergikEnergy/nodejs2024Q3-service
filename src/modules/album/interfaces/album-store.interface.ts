@@ -7,5 +7,6 @@ export interface IAlbumStore {
   findByArtistId(id: string): Promise<IAlbum | undefined>;
   create(album: CreateAlbumDto): Promise<IAlbum>;
   update(album: IAlbum): Promise<IAlbum | null>;
+  removeArtistIdFromAlbum(artistId: string): Promise<boolean>;
   deleteById(id: string): Promise<boolean>;
 }

@@ -7,4 +7,6 @@ export interface ITrackStore {
   create(track: CreateTrackDto): Promise<ITrack>;
   update(track: ITrack): Promise<ITrack | null>;
   deleteById(id: string): Promise<boolean>;
+  resetAlbumIdsInTracks(albumId: string): Promise<boolean>;
+  resetArtistIdsInTracks(artistId: string): Promise<boolean>;
 }

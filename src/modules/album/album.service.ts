@@ -32,10 +32,19 @@ export class AlbumService implements IAlbumService {
       return await this.store.update({ id, ...info });
     } catch (error) {}
   }
+
   async deleteAlbum(id: string): Promise<boolean> {
     try {
       await this.store.deleteById(id);
       return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  async removeArtistId(artistId: string): Promise<boolean> {
+    try {
+      return await this.store.removeArtistIdFromAlbum(artistId);
     } catch (error) {
       return false;
     }
