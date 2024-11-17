@@ -7,19 +7,23 @@ import { ArtistModule } from './modules/artist/artist.module';
 import { AlbumModule } from './modules/album/album.module';
 import { TrackModule } from './modules/track/track.module';
 import { FavsModule } from './modules/favs/favs.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { typeOrmConfigAsync } from './database/async-orm-config';
+import { getTypeOrmConfig } from './database/get-typeorm-config';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({ envFilePath: '.env' }),
     UserModule,
     ArtistModule,
     AlbumModule,
     TrackModule,
     FavsModule,
-    TypeOrmModule.forRootAsync(typeOrmConfigAsync),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: getTypeOrmConfig,
+      inject: [ConfigService],
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
