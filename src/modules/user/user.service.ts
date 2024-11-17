@@ -1,6 +1,5 @@
 import {
   ForbiddenException,
-  HttpStatus,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -42,16 +41,14 @@ export class UsersService implements IUsersService {
   async findById(id: string) {
     const foundUser = await this.userRepository.findOne({ where: { id } });
 
-    if (!foundUser) return null;
+    if (!foundUser)
+      throw new NotFoundException(`User with id:${id} not found!`);
 
     return foundUser.getUserInfo();
   }
 
   async update(id: string, info: UpdatePasswordDto): Promise<UserResponse> {
-    const foundUser = await this.userRepository.findOne({ where: { id } });
-
-    if (!foundUser)
-      throw new NotFoundException(`User with id:${id} not found!`);
+    const foundUser = await this.findById(id);
 
     const isPasswordValid = this.validateUserPassword(
       foundUser,

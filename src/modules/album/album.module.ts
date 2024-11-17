@@ -1,10 +1,12 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { AlbumService } from './album.service';
 import { AlbumController } from './album.controller';
 import { InMemoryAlbumsStore } from './store/album-store';
 import { ValidateUUIDPipe } from '../../common/validation/validate-uuid';
-import { FavsModule } from '../favs/favs.module';
-import { TrackModule } from '../track/track.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AlbumEntity } from './entities/album.entity';
+import { ArtistEntity } from '../artist/entities/artist.entity';
+import { TrackEntity } from '../track/entities/track.entity';
 
 @Module({
   controllers: [AlbumController],
@@ -14,6 +16,6 @@ import { TrackModule } from '../track/track.module';
     ValidateUUIDPipe,
   ],
   exports: [AlbumService],
-  imports: [forwardRef(() => FavsModule), forwardRef(() => TrackModule)],
+  imports: [TypeOrmModule.forFeature([AlbumEntity, ArtistEntity, TrackEntity])],
 })
 export class AlbumModule {}

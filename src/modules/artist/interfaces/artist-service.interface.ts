@@ -1,11 +1,11 @@
 import { CreateArtistDto } from '../dto/create-artist.dto';
 import { UpdateArtistDto } from '../dto/update-artist.dto';
-import { IArtist } from './artist.interface';
+import { ArtistEntity } from '../entities/artist.entity';
 
 export interface IArtistsService {
-  createArtist(artist: CreateArtistDto): Promise<IArtist>;
-  findAll(): Promise<IArtist[]>;
-  findById(id: string): Promise<IArtist | null>;
-  update(id: string, info: UpdateArtistDto): Promise<IArtist>;
-  deleteArtist(id: string): Promise<boolean>;
+  createArtist(artist: CreateArtistDto): Promise<ArtistEntity>;
+  findAll(): Promise<ArtistEntity[]>;
+  findById(id: string): Promise<ArtistEntity>;
+  update(id: string, info: UpdateArtistDto): Promise<ArtistEntity>;
+  deleteArtist(id: string): Promise<void>;
 }

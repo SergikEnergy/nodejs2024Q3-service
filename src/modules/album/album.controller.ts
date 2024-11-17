@@ -22,9 +22,7 @@ import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 @Controller('album')
 export class AlbumController {
   constructor(
-    private readonly albumService: AlbumService,
-    private readonly favsService: FavsService,
-    private readonly trackService: TrackService,
+    private readonly albumService: AlbumService, // private readonly favsService: FavsService, // private readonly trackService: TrackService,
   ) {}
 
   @ApiOperation({ summary: 'Get all albums' })
@@ -86,13 +84,7 @@ export class AlbumController {
     @Param('id', new ValidateUUIDPipe({ version: '4' })) id: string,
     @Body() updateAlbumDto: UpdateAlbumDto,
   ) {
-    const albumInfo = await this.albumService.findById(id);
-    if (!albumInfo) {
-      throw new NotFoundException(`Album with id:${id} not found!`);
-    }
-
-    const result = await this.albumService.update(id, updateAlbumDto);
-    return result;
+    return await this.albumService.update(id, updateAlbumDto);
   }
 
   @ApiOperation({ summary: 'Delete album' })
@@ -114,15 +106,10 @@ export class AlbumController {
   async remove(
     @Param('id', new ValidateUUIDPipe({ version: '4' })) id: string,
   ) {
-    const albumInfo = await this.albumService.findById(id);
-    if (!albumInfo) {
-      throw new NotFoundException(`Album with id:${id} not found!`);
-    }
-
     await Promise.all([
       this.albumService.deleteAlbum(id),
-      this.favsService.deleteAlbum(id),
-      this.trackService.resetAlbumIdInTracks(id),
+      // this.favsService.deleteAlbum(id),
+      // this.trackService.resetAlbumIdInTracks(id),
     ]);
   }
 }

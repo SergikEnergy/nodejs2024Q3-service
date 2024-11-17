@@ -13,6 +13,6 @@ import { FavsModule } from '../favs/favs.module';
     ValidateUUIDPipe,
   ],
   exports: [TrackService],
-  imports: [forwardRef(() => FavsModule)],
+  // imports: [forwardRef(() => FavsModule)],
 })
 export class TrackModule {}

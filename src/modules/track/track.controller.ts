@@ -21,8 +21,7 @@ import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 @Controller('track')
 export class TrackController {
   constructor(
-    private readonly trackService: TrackService,
-    private readonly favsService: FavsService,
+    private readonly trackService: TrackService, // private readonly favsService: FavsService,
   ) {}
 
   @ApiOperation({ summary: 'Get all tracks' })
@@ -119,7 +118,7 @@ export class TrackController {
 
     await Promise.all([
       this.trackService.deleteTrack(id),
-      this.favsService.deleteTrack(id),
+      // this.favsService.deleteTrack(id),
     ]);
   }
 }

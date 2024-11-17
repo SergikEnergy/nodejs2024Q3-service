@@ -13,6 +13,6 @@ export default {
   database: process.env.POSTGRES_DATABASE ?? 'testDb',
   synchronize: process.env.MODE === 'development',
   entities: ['dist/modules/**/entities/*.entity.js'],
-  migrations: ['dist/**/migration/*.js'],
+  migrations: ['dist/migration/*.js'],
   migrationsRun: true,
 } as DataSourceOptions;
