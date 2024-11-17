@@ -4,8 +4,8 @@ import {
   Column,
   Entity,
   JoinColumn,
+  ManyToMany,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { AlbumEntity } from '../../album/entities/album.entity';
@@ -38,15 +38,15 @@ export class TrackEntity {
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'artistId' })
-  artists: ArtistEntity[];
+  artist: ArtistEntity;
 
   @ManyToOne(() => AlbumEntity, (album) => album.tracks, {
     nullable: true,
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'albumId' })
-  albums: AlbumEntity[];
+  album: AlbumEntity;
 
-  @OneToMany(() => FavsEntity, (favorite) => favorite.tracks)
+  @ManyToMany(() => FavsEntity, (favorite) => favorite.tracks)
   favs: FavsEntity[];
 }

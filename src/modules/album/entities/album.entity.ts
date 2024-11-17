@@ -4,6 +4,7 @@ import {
   Column,
   Entity,
   JoinColumn,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -36,9 +37,9 @@ export class AlbumEntity {
   @JoinColumn({ name: 'artistId' })
   artist: ArtistEntity;
 
-  @OneToMany(() => TrackEntity, (track) => track.albumId)
-  tracks: TrackEntity[];
+  @OneToMany(() => TrackEntity, (track) => track.album)
+  tracks: TrackEntity;
 
-  @OneToMany(() => FavsEntity, (favorite) => favorite.albums)
+  @ManyToMany(() => FavsEntity, (favorite) => favorite.albums)
   favs: FavsEntity[];
 }

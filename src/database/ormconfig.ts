@@ -4,7 +4,7 @@ import { DataSourceOptions } from 'typeorm';
 
 dotenv.config();
 
-export default {
+export const dbOptions: DataSourceOptions = {
   type: 'postgres',
   host: process.env.POSTGRES_HOST ?? 'localhost',
   port: parseInt(process.env.POSTGRES_PORT) ?? 5433,
@@ -13,6 +13,6 @@ export default {
   database: process.env.POSTGRES_DATABASE ?? 'testDb',
   synchronize: process.env.MODE === 'development',
   entities: ['dist/modules/**/entities/*.entity.js'],
-  migrations: ['dist/migration/*.js'],
+  migrations: ['dist/database/migration/*.js'],
   migrationsRun: true,
-} as DataSourceOptions;
+};
