@@ -7,6 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AlbumEntity } from './entities/album.entity';
 import { ArtistEntity } from '../artist/entities/artist.entity';
 import { TrackEntity } from '../track/entities/track.entity';
+import { FavsEntity } from '../favs/entities/favs.entity';
 
 @Module({
   controllers: [AlbumController],
@@ -16,6 +17,13 @@ import { TrackEntity } from '../track/entities/track.entity';
     ValidateUUIDPipe,
   ],
   exports: [AlbumService],
-  imports: [TypeOrmModule.forFeature([AlbumEntity, ArtistEntity, TrackEntity])],
+  imports: [
+    TypeOrmModule.forFeature([
+      AlbumEntity,
+      ArtistEntity,
+      TrackEntity,
+      FavsEntity,
+    ]),
+  ],
 })
 export class AlbumModule {}

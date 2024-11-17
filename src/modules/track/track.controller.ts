@@ -6,7 +6,6 @@ import {
   Param,
   Delete,
   Put,
-  NotFoundException,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
@@ -14,7 +13,6 @@ import { TrackService } from './track.service';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
 import { ValidateUUIDPipe } from '../../common/validation/validate-uuid';
-import { FavsService } from '../favs/favs.service';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Tracks')
@@ -43,11 +41,7 @@ export class TrackController {
   async findOne(
     @Param('id', new ValidateUUIDPipe({ version: '4' })) id: string,
   ) {
-    const foundTrack = await this.trackService.findById(id);
-    if (!foundTrack)
-      throw new NotFoundException(`Track with id:${id} not found!`);
-
-    return foundTrack;
+    return await this.trackService.findById(id);
   }
 
   @ApiOperation({ summary: 'Create new track' })
@@ -84,11 +78,6 @@ export class TrackController {
     @Param('id', new ValidateUUIDPipe({ version: '4' })) id: string,
     @Body() updateTrackDto: UpdateTrackDto,
   ) {
-    const trackInfo = await this.trackService.findById(id);
-    if (!trackInfo) {
-      throw new NotFoundException(`Track with id:${id} not found!`);
-    }
-
     return await this.trackService.update(id, updateTrackDto);
   }
 
@@ -111,14 +100,6 @@ export class TrackController {
   async remove(
     @Param('id', new ValidateUUIDPipe({ version: '4' })) id: string,
   ) {
-    const trackInfo = await this.trackService.findById(id);
-    if (!trackInfo) {
-      throw new NotFoundException(`Track with id:${id} not found!`);
-    }
-
-    await Promise.all([
-      this.trackService.deleteTrack(id),
-      // this.favsService.deleteTrack(id),
-    ]);
+    await this.trackService.deleteTrack(id);
   }
 }

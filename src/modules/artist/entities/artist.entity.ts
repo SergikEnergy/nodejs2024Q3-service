@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { AlbumEntity } from '../../album/entities/album.entity';
 import { TrackEntity } from '../../track/entities/track.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { FavsEntity } from '../../favs/entities/favs.entity';
 
 @Entity('artist')
 export class ArtistEntity {
@@ -10,11 +11,11 @@ export class ArtistEntity {
   id: string;
 
   @ApiProperty()
-  @Column()
+  @Column({ type: 'varchar' })
   name: string;
 
   @ApiProperty()
-  @Column()
+  @Column({ type: 'boolean' })
   grammy: boolean;
 
   @OneToMany(() => AlbumEntity, (album) => album.artistId)
@@ -22,4 +23,7 @@ export class ArtistEntity {
 
   @OneToMany(() => TrackEntity, (track) => track.artistId)
   tracks: TrackEntity[];
+
+  @OneToMany(() => FavsEntity, (favorite) => favorite.artists)
+  favs: FavsEntity[];
 }

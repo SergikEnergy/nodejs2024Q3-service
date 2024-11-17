@@ -9,7 +9,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { TrackEntity } from '../../track/entities/track.entity';
-import { IAlbum } from '../interfaces/album.interface';
+import { FavsEntity } from '../../favs/entities/favs.entity';
 
 @Entity('album')
 export class AlbumEntity {
@@ -18,10 +18,10 @@ export class AlbumEntity {
   id: string;
 
   @ApiProperty()
-  @Column()
+  @Column({ type: 'varchar' })
   name: string;
 
-  @Column()
+  @Column({ type: 'int' })
   @ApiProperty()
   year: number;
 
@@ -39,8 +39,6 @@ export class AlbumEntity {
   @OneToMany(() => TrackEntity, (track) => track.albumId)
   tracks: TrackEntity[];
 
-  getAlbums() {
-    const { id, name, year, artistId } = this;
-    return { id, name, year, artistId } as IAlbum;
-  }
+  @OneToMany(() => FavsEntity, (favorite) => favorite.albums)
+  favs: FavsEntity[];
 }

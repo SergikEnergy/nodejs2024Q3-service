@@ -2,7 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
 import { IAlbumService } from './interfaces/album-service.interface';
-import { IAlbum } from './interfaces/album.interface';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AlbumEntity } from './entities/album.entity';
 import { Repository } from 'typeorm';
@@ -16,25 +15,22 @@ export class AlbumService implements IAlbumService {
     @InjectRepository(AlbumEntity)
     private readonly artistRepository: Repository<ArtistEntity>,
   ) {}
-  removeArtistId(artistId: string): Promise<void> {
-    throw new Error('Method not implemented.');
-  }
 
-  async findAll(): Promise<IAlbum[]> {
+  async findAll() {
     const albums = await this.albumRepository.find();
-    return albums.map((album) => album.getAlbums());
+    return albums;
   }
 
-  async findById(id: string): Promise<IAlbum> {
+  async findById(id: string) {
     const foundAlbum = await this.albumRepository.findOne({ where: { id } });
 
     if (!foundAlbum)
       throw new NotFoundException(`Album with id:${id} not found!`);
 
-    return foundAlbum.getAlbums();
+    return foundAlbum;
   }
 
-  async createAlbum(album: CreateAlbumDto): Promise<IAlbum> {
+  async createAlbum(album: CreateAlbumDto) {
     const existedArtist = this.artistRepository.findOne({
       where: { id: album.artistId },
     });
@@ -45,19 +41,17 @@ export class AlbumService implements IAlbumService {
       );
 
     const newAlbum = this.albumRepository.create(album);
-    return (await this.albumRepository.save(newAlbum)).getAlbums();
+    return await this.albumRepository.save(newAlbum);
   }
 
-  async update(id: string, info: UpdateAlbumDto): Promise<IAlbum> {
+  async update(id: string, info: UpdateAlbumDto) {
     const foundAlbum = await this.findById(id);
 
     const updatedAlbum = { ...foundAlbum, ...info };
-    await this.albumRepository.save(updatedAlbum);
-
-    return updatedAlbum;
+    return await this.albumRepository.save(updatedAlbum);
   }
 
-  async deleteAlbum(id: string): Promise<void> {
+  async deleteAlbum(id: string) {
     const res = await this.albumRepository.delete(id);
     if (res.affected === 0) {
       throw new NotFoundException(`Album with id:${id} not found!`);

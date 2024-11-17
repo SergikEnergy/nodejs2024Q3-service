@@ -5,9 +5,11 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { AlbumEntity } from '../../album/entities/album.entity';
+import { FavsEntity } from '../../favs/entities/favs.entity';
 
 @Entity('track')
 export class TrackEntity {
@@ -16,7 +18,7 @@ export class TrackEntity {
   id: string;
 
   @ApiProperty()
-  @Column()
+  @Column({ type: 'varchar' })
   name: string;
 
   @ApiProperty({ nullable: true })
@@ -28,7 +30,7 @@ export class TrackEntity {
   albumId: string | null;
 
   @ApiProperty()
-  @Column()
+  @Column({ type: 'int' })
   duration: number;
 
   @ManyToOne(() => ArtistEntity, (artist) => artist.tracks, {
@@ -43,5 +45,8 @@ export class TrackEntity {
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'albumId' })
-  albums: ArtistEntity[];
+  albums: AlbumEntity[];
+
+  @OneToMany(() => FavsEntity, (favorite) => favorite.tracks)
+  favs: FavsEntity[];
 }

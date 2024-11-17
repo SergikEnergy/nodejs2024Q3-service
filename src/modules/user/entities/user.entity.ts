@@ -6,22 +6,22 @@ export class UserEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   login: string;
 
   @Exclude()
-  @Column()
+  @Column({ type: 'varchar' })
   password: string;
 
-  @Column()
+  @Column({ type: 'int' })
   version: number;
 
   @Transform(({ value }) => new Date(value).getTime())
-  @Column()
+  @Column({ type: 'timestamp' })
   createdAt: Date;
 
   @Transform(({ value }) => new Date(value).getTime())
-  @Column()
+  @Column({ type: 'timestamp' })
   updatedAt: Date;
 
   getUserInfo() {

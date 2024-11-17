@@ -14,16 +14,12 @@ import { AlbumService } from './album.service';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
 import { ValidateUUIDPipe } from '../../common/validation/validate-uuid';
-import { FavsService } from '../favs/favs.service';
-import { TrackService } from '../track/track.service';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Albums')
 @Controller('album')
 export class AlbumController {
-  constructor(
-    private readonly albumService: AlbumService, // private readonly favsService: FavsService, // private readonly trackService: TrackService,
-  ) {}
+  constructor(private readonly albumService: AlbumService) {}
 
   @ApiOperation({ summary: 'Get all albums' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Returns all albums' })
@@ -106,10 +102,6 @@ export class AlbumController {
   async remove(
     @Param('id', new ValidateUUIDPipe({ version: '4' })) id: string,
   ) {
-    await Promise.all([
-      this.albumService.deleteAlbum(id),
-      // this.favsService.deleteAlbum(id),
-      // this.trackService.resetAlbumIdInTracks(id),
-    ]);
+    await this.albumService.deleteAlbum(id);
   }
 }

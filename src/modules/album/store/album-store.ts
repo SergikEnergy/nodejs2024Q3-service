@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 export class InMemoryAlbumsStore implements IAlbumStore {
   private albums: IAlbum[] = [];
 
-  async getAlbums(): Promise<IAlbum[]> {
+  async getAlbumInfo(): Promise<IAlbum[]> {
     try {
       return this.albums;
     } catch (error) {}
@@ -38,7 +38,7 @@ export class InMemoryAlbumsStore implements IAlbumStore {
 
   async update(album: IAlbum): Promise<IAlbum | null> {
     try {
-      const albums = await this.getAlbums();
+      const albums = await this.getAlbumInfo();
       const albumIndex = albums.findIndex((item) => item.id === album.id);
       if (albumIndex === -1) return null;
 
