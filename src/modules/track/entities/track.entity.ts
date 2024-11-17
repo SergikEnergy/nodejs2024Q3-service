@@ -47,6 +47,8 @@ export class TrackEntity {
   @JoinColumn({ name: 'albumId' })
   album: AlbumEntity;
 
-  @ManyToMany(() => FavsEntity, (favorite) => favorite.tracks)
+  @ManyToMany(() => FavsEntity, (favorite) => favorite.tracks, {
+    onDelete: 'CASCADE',
+  })
   favs: FavsEntity[];
 }
