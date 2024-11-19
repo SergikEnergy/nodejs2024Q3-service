@@ -4,12 +4,16 @@
 
 - Git - [Download & Install Git](https://git-scm.com/downloads).
 - Node.js - [Download & Install Node.js](https://nodejs.org/en/download/) and the npm package manager.
+
 - **Please** _use nodejs v.22.8.0_ for checking this work.
 
 ### Downloading
 
 ```
-git clone {repository URL}
+- clone repository `git clone git@github.com:SergikEnergy/nodejs2024Q3-service.git`
+
+- Switch to the `dev-part-2` branch
+- update - `git pull`
 ```
 
 ### Preparation
@@ -20,21 +24,21 @@ rename env.example into .env
 
 ## Installing NPM modules
 
+switch node to the v.22.8.0
+
 ```
-npm ci (please - don't update versions of dependencies in order to avoid crash app)
-__if it will need use npm ci --legacy-peer-deeps__
+npm ci __if it will error__ - use -> `npm ci --legacy-peer-deeps`
 
 ```
 
-## Running application
+## Running application with docker container
 
 ```
-npm start (by default port for app used __4000__)
+npm run docker:start (by default port for app used __4000__)
 ```
 
 After starting the app on port (4000 as default) you can open
 in your browser OpenAPI documentation by typing <http://localhost:4000/doc/>.
-For more information about OpenAPI/Swagger please visit <https://swagger.io/>.
 
 ## Testing
 
@@ -46,26 +50,6 @@ To run all tests without authorization
 npm run test
 ```
 
-only this command for testing this task
-
-To run only one of all test suites
-
-```
-npm run test -- <path to suite>
-```
-
-To run all test with authorization
-
-```
-npm run test:auth
-```
-
-To run only specific test suite with authorization
-
-```
-npm run test:auth -- <path to suite>
-```
-
 ### Auto-fix and format
 
 ```
@@ -75,12 +59,6 @@ npm run lint
 ```
 npm run format
 ```
-
-### Debugging in VSCode
-
-Press <kbd>F5</kbd> to debug.
-
-For more information, visit: <https://code.visualstudio.com/docs/editor/debugging>
 
 ### Using the app
 
@@ -212,7 +190,7 @@ this app contain next entities, for all id's generating used uuid version4 prein
        albums: Album[];
        tracks: Track[];
      }
-     ``1
+     ``
 
   - `POST localhost:4000/favs/track/:id` - add track to the favorites
   - `DELETE localhost:4000/favs/track/:id` - delete track from favorites

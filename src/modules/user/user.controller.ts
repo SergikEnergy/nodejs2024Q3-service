@@ -1,15 +1,16 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
-  ForbiddenException,
   Get,
   HttpCode,
   HttpStatus,
-  InternalServerErrorException,
   Param,
   Post,
   Put,
+  SerializeOptions,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ValidateUUIDPipe } from '../../common/validation/validate-uuid';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -18,6 +19,7 @@ import { UserResponse } from './interfaces/user.interface';
 import { UsersService } from './user.service';
 import { NotFoundException } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { UserEntity } from './entities/user.entity';
 
 @ApiTags('Users')
 @Controller('user')
@@ -26,6 +28,8 @@ export class UserController {
 
   @ApiOperation({ summary: 'Get all Users' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Return all users' })
+  @UseInterceptors(ClassSerializerInterceptor)
+  @SerializeOptions({ type: UserEntity })
   @Get()
   async findAllUsers(): Promise<UserResponse[]> {
     const users = await this.usersService.findAll();
@@ -40,6 +44,8 @@ export class UserController {
     status: HttpStatus.NOT_FOUND,
     description: 'User with id not found',
   })
+  @UseInterceptors(ClassSerializerInterceptor)
+  @SerializeOptions({ type: UserEntity })
   @Get(':id')
   async findUserById(
     @Param('id', new ValidateUUIDPipe({ version: '4' })) id: string,
@@ -55,6 +61,8 @@ export class UserController {
     description: 'User created successfully',
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid input' })
+  @UseInterceptors(ClassSerializerInterceptor)
+  @SerializeOptions({ type: UserEntity })
   @Post()
   async createUser(@Body() body: CreateUserDto): Promise<UserResponse> {
     return await this.usersService.createUser(body);
@@ -78,23 +86,14 @@ export class UserController {
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Invalid input',
   })
+  @UseInterceptors(ClassSerializerInterceptor)
+  @SerializeOptions({ type: UserEntity })
   @Put(':id')
   async updateUserById(
     @Param('id', new ValidateUUIDPipe({ version: '4' })) id: string,
     @Body() body: UpdatePasswordDto,
   ): Promise<UserResponse> {
-    const { data, status } = await this.usersService.update(id, body);
-    switch (status) {
-      case HttpStatus.NOT_FOUND:
-        throw new NotFoundException(`User with id:${id} not found!`);
-      case HttpStatus.FORBIDDEN:
-        throw new ForbiddenException("Incorrect user's password!");
-      case HttpStatus.INTERNAL_SERVER_ERROR:
-        throw new InternalServerErrorException('Something went wrong');
-
-      default:
-        return data;
-    }
+    return await this.usersService.update(id, body);
   }
 
   @ApiOperation({ summary: 'Delete user' })
@@ -116,11 +115,6 @@ export class UserController {
   async remove(
     @Param('id', new ValidateUUIDPipe({ version: '4' })) id: string,
   ): Promise<void> {
-    const userInfo = await this.usersService.findById(id);
-    if (!userInfo) {
-      throw new NotFoundException(`User with id:${id} not found!`);
-    }
-
     await this.usersService.deleteUser(id);
   }
 }
