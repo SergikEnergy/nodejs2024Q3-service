@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -10,6 +10,8 @@ import { FavsModule } from './modules/favs/favs.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { getTypeOrmConfig } from './database/get-typeorm-config';
+import { LoggerModule } from './services/logger/logger.module';
+import { LoggerMiddleware } from './services/logger/logger.middleware';
 
 @Module({
   imports: [
@@ -19,6 +21,7 @@ import { getTypeOrmConfig } from './database/get-typeorm-config';
     AlbumModule,
     TrackModule,
     FavsModule,
+    LoggerModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: getTypeOrmConfig,
@@ -28,4 +31,8 @@ import { getTypeOrmConfig } from './database/get-typeorm-config';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).exclude('/doc').forRoutes('*');
+  }
+}

@@ -2,10 +2,11 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { CustomLogger } from './services/logger/custom-logger.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
-    logger: ['log', 'error', 'warn'],
+    bufferLogs: true,
     abortOnError: false,
   });
   app.useGlobalPipes(
@@ -14,6 +15,8 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+
+  app.useLogger(app.get(CustomLogger));
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Home music library service')
