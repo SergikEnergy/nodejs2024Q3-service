@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { CustomLogger } from './services/logger/custom-logger.service';
+import { CustomExceptionFilter } from './services/exception-filter/exception-filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -15,8 +16,10 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+  const logger = app.get(CustomLogger);
 
-  app.useLogger(app.get(CustomLogger));
+  app.useLogger(logger);
+  app.useGlobalFilters(new CustomExceptionFilter(logger));
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Home music library service')

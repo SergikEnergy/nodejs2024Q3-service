@@ -36,6 +36,6 @@ export class LoggerMiddleware implements NestMiddleware {
     body: Request['body'],
     statusCode: Response['statusCode'],
   ): string {
-    return `Server got request with url:${url}, method:${method}, params:${params || 'without parameters'}, queryParams:${query ? query : 'without query params'} and body: ${body ? JSON.stringify(body) : "wasn't provided"}. And response with status code: ${statusCode}`;
+    return `Server got request with url:${url}, method:${method}, params:${params ? JSON.stringify(params) : 'without parameters'}, queryParams:${query ? JSON.stringify(query) : 'without query params'} and body: ${body ? JSON.stringify(body) : "wasn't provided"}. And response with status code: ${statusCode}`;
   }
 }
