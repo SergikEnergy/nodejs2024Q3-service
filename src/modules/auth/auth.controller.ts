@@ -4,6 +4,7 @@ import { LoginDto } from './dto/login.dto';
 import { SignUpDto } from './dto/sign-up.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { AvoidAuth } from './decorators/avoid-auth';
 
 @ApiTags('Authorization')
 @Controller('auth')
@@ -34,6 +35,7 @@ export class AuthController {
       updatedAt: 1023443344,
     },
   })
+  @AvoidAuth()
   @HttpCode(HttpStatus.CREATED)
   @Post('signup')
   async signUp(@Body() signUpInfo: SignUpDto) {
@@ -66,6 +68,7 @@ export class AuthController {
       refreshToken: 'jwt token format',
     },
   })
+  @AvoidAuth()
   @HttpCode(HttpStatus.OK)
   @Post('login')
   async login(@Body() loginInfo: LoginDto) {
@@ -95,6 +98,7 @@ export class AuthController {
     },
     description: 'Get tokens data in JWT format',
   })
+  @AvoidAuth()
   @HttpCode(HttpStatus.OK)
   @Post('refresh')
   async refresh(@Body() refreshInfo: RefreshTokenDto) {

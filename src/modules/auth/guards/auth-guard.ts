@@ -8,6 +8,7 @@ import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import * as dotenv from 'dotenv';
+import { IS_AUTH_EXCLUDED } from '../decorators/avoid-auth';
 dotenv.config();
 
 @Injectable()
@@ -17,6 +18,13 @@ export class AuthGuard implements CanActivate {
     private reflector: Reflector,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const avoidAuth = this.reflector.getAllAndOverride<boolean>(
+      IS_AUTH_EXCLUDED,
+      [context.getHandler(), context.getClass()],
+    );
+
+    if (avoidAuth) return true;
+
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
