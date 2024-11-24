@@ -24,8 +24,8 @@ export class InMemoryUsersStore implements IUserStore {
     try {
       const newUser: User = {
         id: uuidv4(),
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
         version: 1,
         login: params.login,
         password: params.password,
@@ -45,7 +45,7 @@ export class InMemoryUsersStore implements IUserStore {
 
       const updatedUser: User = {
         ...user,
-        updatedAt: Date.now(),
+        updatedAt: new Date(),
         version: ++user.version,
       };
 

@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Injectable } from '@nestjs/common';
-import { ArtistEntity } from '../../../modules/artist/entities/artist';
-import { AlbumEntity } from '../../../modules/album/entities/album';
-import { TrackEntity } from '../../../modules/track/entities/track';
+import { ArtistEntity } from '../../artist/entities/artist.entity';
+import { AlbumEntity } from '../../album/entities/album.entity';
+import { TrackEntity } from '../../track/entities/track.entity';
 
 @Injectable()
 export class FavoritesSwaggerResponse {

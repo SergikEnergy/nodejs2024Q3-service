@@ -5,9 +5,7 @@ import { ITrack } from './track.interface';
 export interface ITrackService {
   createTrack(track: CreateTrackDto): Promise<ITrack>;
   findAll(): Promise<ITrack[]>;
-  findById(id: string): Promise<ITrack | null>;
+  findById(id: string): Promise<ITrack>;
   update(id: string, info: UpdateTrackDto): Promise<ITrack>;
-  resetAlbumIdInTracks(albumId: string): Promise<boolean>;
-  resetArtistIdInTracks(artistId: string): Promise<boolean>;
-  deleteTrack(id: string): Promise<boolean>;
+  deleteTrack(id: string): Promise<void>;
 }

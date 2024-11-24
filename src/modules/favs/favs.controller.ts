@@ -5,29 +5,19 @@ import {
   Delete,
   Res,
   HttpStatus,
-  NotFoundException,
   HttpCode,
   Get,
 } from '@nestjs/common';
 import { FavsService } from './favs.service';
 import { ValidateUUIDPipe } from '../../common/validation/validate-uuid';
-import { ArtistService } from '../artist/artist.service';
-import { AlbumService } from '../album/album.service';
-import { TrackService } from '../track/track.service';
 import { Response } from 'express';
-import { NotFoundResourceException } from '../../common/exceptions/not-found-resource-exception';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { FavoritesSwaggerResponse } from './interfaces/favorites-swagger';
 
 @ApiTags('Favorites')
 @Controller('favs')
 export class FavsController {
-  constructor(
-    private readonly favsService: FavsService,
-    private readonly artistService: ArtistService,
-    private readonly albumsService: AlbumService,
-    private readonly tracksService: TrackService,
-  ) {}
+  constructor(private readonly favsService: FavsService) {}
 
   @ApiOperation({ summary: 'Get favorites collection' })
   @ApiResponse({
@@ -56,11 +46,7 @@ export class FavsController {
     @Param('id', new ValidateUUIDPipe({ version: '4' })) id: string,
     @Res() res: Response,
   ) {
-    const trackInfo = await this.tracksService.findById(id);
-    if (!trackInfo) {
-      throw new NotFoundResourceException('track', id);
-    }
-    await this.favsService.addTrack(trackInfo);
+    await this.favsService.addTrack(id);
     res.status(HttpStatus.CREATED).json({
       message: `Track with id:${id} was added to favorites collection.`,
     });
@@ -82,12 +68,6 @@ export class FavsController {
   async removeTrack(
     @Param('id', new ValidateUUIDPipe({ version: '4' })) id: string,
   ) {
-    const isTrackInFavs = await this.favsService.findTrack(id);
-    if (!isTrackInFavs) {
-      throw new NotFoundException(
-        `Track with id:${id} was not found in favorites!`,
-      );
-    }
     await this.favsService.deleteTrack(id);
   }
 
@@ -107,11 +87,7 @@ export class FavsController {
     @Param('id', new ValidateUUIDPipe({ version: '4' })) id: string,
     @Res() res: Response,
   ) {
-    const albumInfo = await this.albumsService.findById(id);
-    if (!albumInfo) {
-      throw new NotFoundResourceException('album', id);
-    }
-    await this.favsService.addAlbum(albumInfo);
+    await this.favsService.addAlbum(id);
     res.status(HttpStatus.CREATED).json({
       message: `Album with id:${id} was added to favorites collection.`,
     });
@@ -133,12 +109,6 @@ export class FavsController {
   async removeAlbum(
     @Param('id', new ValidateUUIDPipe({ version: '4' })) id: string,
   ) {
-    const isAlbumInFavs = await this.favsService.findAlbum(id);
-    if (!isAlbumInFavs) {
-      throw new NotFoundException(
-        `Album with id:${id} was not found in favorites!`,
-      );
-    }
     await this.favsService.deleteAlbum(id);
   }
 
@@ -158,12 +128,7 @@ export class FavsController {
     @Param('id', new ValidateUUIDPipe({ version: '4' })) id: string,
     @Res() res: Response,
   ) {
-    const artistInfo = await this.artistService.findById(id);
-    if (!artistInfo) {
-      throw new NotFoundResourceException('artist', id);
-    }
-
-    await this.favsService.addArtist(artistInfo);
+    await this.favsService.addArtist(id);
     res.status(HttpStatus.CREATED).json({
       message: `Artist with id:${id} was added to favorites collection.`,
     });
@@ -185,11 +150,6 @@ export class FavsController {
   async removeArtist(
     @Param('id', new ValidateUUIDPipe({ version: '4' })) id: string,
   ) {
-    const artistExist = await this.favsService.findArtist(id);
-    if (!artistExist) {
-      throw new NotFoundResourceException('artist', id);
-    }
-
     await this.favsService.deleteArtist(id);
   }
 }

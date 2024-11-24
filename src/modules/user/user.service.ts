@@ -1,88 +1,114 @@
-import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import {
-  UpdateUserResponse,
-  User,
-  UserResponse,
-} from './interfaces/user.interface';
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
+import { User, UserResponse } from './interfaces/user.interface';
 import { CreateUserDto } from './dto/create-user.dto';
 
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { IUsersService } from './interfaces/users-service.interface';
-import { IUserStore } from './interfaces/users-store.interface';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { UserEntity } from './entities/user.entity';
+import { compare, hash } from 'bcrypt';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 @Injectable()
 export class UsersService implements IUsersService {
-  constructor(@Inject('UserStore') private store: IUserStore) {}
+  constructor(
+    @InjectRepository(UserEntity)
+    private userRepository: Repository<UserEntity>,
+  ) {}
 
-  async createUser(user: CreateUserDto): Promise<UserResponse> {
-    try {
-      const { password, ...restUser } = await this.store.create(user);
-
-      return restUser;
-    } catch (error) {}
-  }
-
-  async findAll(): Promise<UserResponse[]> {
-    try {
-      const users = await this.store.getUsers();
-      return users.map((user) => {
-        delete user.password;
-        return user;
-      });
-    } catch (error) {}
-  }
-
-  async findById(id: string): Promise<UserResponse | null> {
-    try {
-      const foundUser = await this.store.findById(id);
-      if (!foundUser) return null;
-      delete foundUser.password;
-
-      return foundUser;
-    } catch (error) {}
-  }
-
-  async update(
-    id: string,
-    info: UpdatePasswordDto,
-  ): Promise<UpdateUserResponse> {
-    try {
-      const foundUser = await this.store.findById(id);
-      if (!foundUser) return { data: null, status: HttpStatus.NOT_FOUND };
-
-      const isPasswordValid = this.validateUserPassword(
-        foundUser,
-        info.oldPassword,
+  async createUser(userDto: CreateUserDto) {
+    const foundUser = await this.findByName(userDto.login);
+    if (foundUser)
+      throw new BadRequestException(
+        `User with login:${userDto.login} already exists`,
       );
-      if (!isPasswordValid) {
-        return { data: null, status: HttpStatus.FORBIDDEN };
-      }
 
-      const updatedUser: User = {
-        ...foundUser,
-        password: info.newPassword,
-      };
+    const hashedPassword = await this.hashPassword(userDto.password);
 
-      const result = await this.store.update(updatedUser);
+    const newUser = {
+      ...userDto,
+      password: hashedPassword,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      version: 1,
+    };
+    const createdUser = this.userRepository.create(newUser);
 
-      if (!result)
-        return { data: null, status: HttpStatus.INTERNAL_SERVER_ERROR };
+    return await this.userRepository.save(createdUser);
+  }
 
-      delete result.password;
+  async findAll() {
+    return await this.userRepository.find();
+  }
 
-      return { data: result, status: HttpStatus.OK };
-    } catch (error) {
-      return { data: null, status: HttpStatus.INTERNAL_SERVER_ERROR };
+  async findById(id: string) {
+    const foundUser = await this.userRepository.findOne({ where: { id } });
+
+    if (!foundUser)
+      throw new NotFoundException(`User with id:${id} not found!`);
+
+    return foundUser;
+  }
+
+  async findByName(login: string) {
+    return await this.userRepository.findOne({ where: { login } });
+  }
+
+  async update(id: string, info: UpdatePasswordDto) {
+    const foundUser = await this.findById(id);
+
+    const isPasswordValid = await this.comparePasswords(
+      info.oldPassword,
+      foundUser.password,
+    );
+
+    if (!isPasswordValid) {
+      throw new ForbiddenException("Incorrect user's password!");
+    }
+
+    const hashedNewPassword = await this.hashPassword(info.newPassword);
+
+    const updatedUser: User = {
+      ...foundUser,
+      updatedAt: new Date(),
+      version: ++foundUser.version,
+      password: hashedNewPassword,
+    };
+
+    const result = await this.userRepository.save(updatedUser);
+
+    if (!result) throw new InternalServerErrorException('Something went wrong');
+
+    return result;
+  }
+
+  async deleteUser(id: string) {
+    const res = await this.userRepository.delete(id);
+    if (res.affected === 0) {
+      throw new NotFoundException(`User with id:${id} not found!`);
     }
   }
 
-  async deleteUser(id: string): Promise<void> {
-    try {
-      await this.store.deleteById(id);
-    } catch (error) {}
+  private async hashPassword(password: string) {
+    return await hash(password, Number(process.env.salt) ?? 10);
   }
 
-  validateUserPassword(user: User, oldPassword: string): boolean {
-    return user.password === oldPassword;
+  private async comparePasswords(
+    rawPassword: string,
+    hashedOldPassword: string,
+  ) {
+    try {
+      return await compare(rawPassword, hashedOldPassword);
+    } catch {
+      return false;
+    }
   }
 }

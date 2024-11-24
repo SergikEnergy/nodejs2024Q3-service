@@ -1,40 +1,47 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
 import { IArtistsService } from './interfaces/artist-service.interface';
-import { IArtistStore } from './interfaces/artists-store.interface';
+import { InjectRepository } from '@nestjs/typeorm';
+import { ArtistEntity } from './entities/artist.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class ArtistService implements IArtistsService {
-  constructor(@Inject('ArtistStore') private store: IArtistStore) {}
+  constructor(
+    @InjectRepository(ArtistEntity)
+    private artistRepository: Repository<ArtistEntity>,
+  ) {}
 
   async createArtist(createArtistDto: CreateArtistDto) {
-    try {
-      return await this.store.create(createArtistDto);
-    } catch (error) {}
+    const newArtist = this.artistRepository.create(createArtistDto);
+    return await this.artistRepository.save(newArtist);
   }
 
   async findAll() {
-    try {
-      return await this.store.getArtists();
-    } catch (error) {}
+    return await this.artistRepository.find();
   }
 
   async findById(id: string) {
-    try {
-      return await this.store.findById(id);
-    } catch (error) {}
+    const foundArtist = await this.artistRepository.findOne({ where: { id } });
+    if (!foundArtist)
+      throw new NotFoundException(`Artist with id:${id} not found!`);
+
+    return foundArtist;
   }
 
   async update(id: string, updateArtistDto: UpdateArtistDto) {
-    try {
-      return await this.store.update({ id, ...updateArtistDto });
-    } catch (error) {}
+    const foundArtist = await this.findById(id);
+
+    const updatedArtist = { ...foundArtist, ...updateArtistDto };
+
+    return await this.artistRepository.save(updatedArtist);
   }
 
   async deleteArtist(id: string) {
-    try {
-      return await this.store.deleteById(id);
-    } catch (error) {}
+    const res = await this.artistRepository.delete(id);
+    if (res.affected === 0) {
+      throw new NotFoundException(`Artist with id:${id} not found!`);
+    }
   }
 }

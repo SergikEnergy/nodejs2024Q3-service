@@ -1,52 +1,60 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
 import { IAlbumService } from './interfaces/album-service.interface';
-import { IAlbum } from './interfaces/album.interface';
-import { IAlbumStore } from './interfaces/album-store.interface';
+import { InjectRepository } from '@nestjs/typeorm';
+import { AlbumEntity } from './entities/album.entity';
+import { Repository } from 'typeorm';
+import { ArtistEntity } from '../artist/entities/artist.entity';
 
 @Injectable()
 export class AlbumService implements IAlbumService {
-  constructor(@Inject('AlbumStore') private readonly store: IAlbumStore) {}
+  constructor(
+    @InjectRepository(AlbumEntity)
+    private readonly albumRepository: Repository<AlbumEntity>,
+    @InjectRepository(AlbumEntity)
+    private readonly artistRepository: Repository<ArtistEntity>,
+  ) {}
 
-  async findAll(): Promise<IAlbum[]> {
-    try {
-      return await this.store.getAlbums();
-    } catch (error) {}
+  async findAll() {
+    const albums = await this.albumRepository.find();
+    return albums;
   }
 
-  async findById(id: string): Promise<IAlbum | null> {
-    try {
-      return await this.store.findById(id);
-    } catch (error) {}
+  async findById(id: string) {
+    const foundAlbum = await this.albumRepository.findOne({ where: { id } });
+
+    if (!foundAlbum)
+      throw new NotFoundException(`Album with id:${id} not found!`);
+
+    return foundAlbum;
   }
 
-  async createAlbum(album: CreateAlbumDto): Promise<IAlbum> {
-    try {
-      return await this.store.create(album);
-    } catch (error) {}
+  async createAlbum(album: CreateAlbumDto) {
+    const existedArtist = this.artistRepository.findOne({
+      where: { id: album.artistId },
+    });
+
+    if (!existedArtist)
+      throw new NotFoundException(
+        `Artist with id:${album.artistId} not found in database!`,
+      );
+
+    const newAlbum = this.albumRepository.create(album);
+    return await this.albumRepository.save(newAlbum);
   }
 
-  async update(id: string, info: UpdateAlbumDto): Promise<IAlbum> {
-    try {
-      return await this.store.update({ id, ...info });
-    } catch (error) {}
+  async update(id: string, info: UpdateAlbumDto) {
+    const foundAlbum = await this.findById(id);
+
+    const updatedAlbum = { ...foundAlbum, ...info };
+    return await this.albumRepository.save(updatedAlbum);
   }
 
-  async deleteAlbum(id: string): Promise<boolean> {
-    try {
-      await this.store.deleteById(id);
-      return true;
-    } catch (error) {
-      return false;
-    }
-  }
-
-  async removeArtistId(artistId: string): Promise<boolean> {
-    try {
-      return await this.store.removeArtistIdFromAlbum(artistId);
-    } catch (error) {
-      return false;
+  async deleteAlbum(id: string) {
+    const res = await this.albumRepository.delete(id);
+    if (res.affected === 0) {
+      throw new NotFoundException(`Album with id:${id} not found!`);
     }
   }
 }
