@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
@@ -12,6 +13,9 @@ import { IUsersService } from './interfaces/users-service.interface';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from './entities/user.entity';
+import { compare, hash } from 'bcrypt';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 @Injectable()
 export class UsersService implements IUsersService {
@@ -21,21 +25,28 @@ export class UsersService implements IUsersService {
   ) {}
 
   async createUser(userDto: CreateUserDto) {
+    const foundUser = await this.findByName(userDto.login);
+    if (foundUser)
+      throw new BadRequestException(
+        `User with login:${userDto.login} already exists`,
+      );
+
+    const hashedPassword = await this.hashPassword(userDto.password);
+
     const newUser = {
       ...userDto,
+      password: hashedPassword,
       createdAt: new Date(),
       updatedAt: new Date(),
       version: 1,
     };
     const createdUser = this.userRepository.create(newUser);
 
-    return (await this.userRepository.save(createdUser)).getUserInfo();
+    return await this.userRepository.save(createdUser);
   }
 
   async findAll() {
-    const users = await this.userRepository.find();
-
-    return users.map((user) => user.getUserInfo());
+    return await this.userRepository.find();
   }
 
   async findById(id: string) {
@@ -44,26 +55,32 @@ export class UsersService implements IUsersService {
     if (!foundUser)
       throw new NotFoundException(`User with id:${id} not found!`);
 
-    return foundUser.getUserInfo();
+    return foundUser;
   }
 
-  async update(id: string, info: UpdatePasswordDto): Promise<UserResponse> {
+  async findByName(login: string) {
+    return await this.userRepository.findOne({ where: { login } });
+  }
+
+  async update(id: string, info: UpdatePasswordDto) {
     const foundUser = await this.findById(id);
 
-    const isPasswordValid = this.validateUserPassword(
-      foundUser,
+    const isPasswordValid = await this.comparePasswords(
       info.oldPassword,
+      foundUser.password,
     );
 
     if (!isPasswordValid) {
       throw new ForbiddenException("Incorrect user's password!");
     }
 
+    const hashedNewPassword = await this.hashPassword(info.newPassword);
+
     const updatedUser: User = {
       ...foundUser,
       updatedAt: new Date(),
       version: ++foundUser.version,
-      password: info.newPassword,
+      password: hashedNewPassword,
     };
 
     const result = await this.userRepository.save(updatedUser);
@@ -73,14 +90,25 @@ export class UsersService implements IUsersService {
     return result;
   }
 
-  async deleteUser(id: string): Promise<void> {
+  async deleteUser(id: string) {
     const res = await this.userRepository.delete(id);
     if (res.affected === 0) {
       throw new NotFoundException(`User with id:${id} not found!`);
     }
   }
 
-  validateUserPassword(user: User, oldPassword: string): boolean {
-    return user.password === oldPassword;
+  private async hashPassword(password: string) {
+    return await hash(password, Number(process.env.salt) ?? 10);
+  }
+
+  private async comparePasswords(
+    rawPassword: string,
+    hashedOldPassword: string,
+  ) {
+    try {
+      return await compare(rawPassword, hashedOldPassword);
+    } catch {
+      return false;
+    }
   }
 }

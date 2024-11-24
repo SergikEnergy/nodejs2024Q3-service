@@ -6,7 +6,7 @@ export class UserEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', unique: true })
   login: string;
 
   @Exclude()
@@ -23,8 +23,4 @@ export class UserEntity {
   @Transform(({ value }) => new Date(value).getTime())
   @Column({ type: 'timestamp' })
   updatedAt: Date;
-
-  getUserInfo() {
-    return this;
-  }
 }

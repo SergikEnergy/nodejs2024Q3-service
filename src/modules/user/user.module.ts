@@ -14,5 +14,6 @@ import { UserEntity } from './entities/user.entity';
     ValidateUUIDPipe,
   ],
   imports: [TypeOrmModule.forFeature([UserEntity])],
+  exports: [UsersService],
 })
 export class UserModule {}
