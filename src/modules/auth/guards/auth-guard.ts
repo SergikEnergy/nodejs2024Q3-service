@@ -28,7 +28,7 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
-      throw new UnauthorizedException("User doesn't authorized!");
+      throw new UnauthorizedException();
     }
 
     try {
@@ -38,11 +38,10 @@ export class AuthGuard implements CanActivate {
       }>(token, {
         secret: process.env.JWT_SECRET_KEY ?? 'secret',
       });
-      // 💡 We're assigning the payload to the request object here
-      // so that we can access it in our route handlers
+
       request['user'] = payload;
     } catch {
-      throw new UnauthorizedException("User doesn't authorized!");
+      throw new UnauthorizedException();
     }
     return true;
   }

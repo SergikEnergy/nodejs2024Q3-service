@@ -1,5 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { config } from 'dotenv';
+config();
 
 export const getTypeOrmConfig = (
   configService: ConfigService,
@@ -12,6 +14,6 @@ export const getTypeOrmConfig = (
   database: configService.get<string>('POSTGRES_DATABASE'),
   entities: ['dist/modules/**/entities/*.entity.js'],
   migrations: ['dist/database/migrations/*-migration.js'],
-  synchronize: false,
+  synchronize: process.env.MODE === 'development',
   migrationsRun: true,
 });

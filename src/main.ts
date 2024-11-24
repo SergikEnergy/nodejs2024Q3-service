@@ -30,6 +30,7 @@ async function bootstrap() {
     .addTag('Artists')
     .addTag('Albums')
     .addTag('Favorites')
+    .addTag('Authorization')
     .build();
 
   const documentFactory = () =>

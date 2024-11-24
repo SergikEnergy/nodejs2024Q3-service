@@ -11,8 +11,6 @@ import { getTypeOrmConfig } from './database/get-typeorm-config';
 import { LoggerModule } from './services/logger/logger.module';
 import { LoggerMiddleware } from './services/logger/logger.middleware';
 import { AuthModule } from './modules/auth/auth.module';
-import { AuthGuard } from './modules/auth/guards/auth-guard';
-import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -29,13 +27,6 @@ import { APP_GUARD } from '@nestjs/core';
       inject: [ConfigService],
     }),
     AuthModule,
-  ],
-  controllers: [],
-  providers: [
-    {
-      provide: APP_GUARD,
-      useClass: AuthGuard,
-    },
   ],
 })
 export class AppModule implements NestModule {

@@ -50,12 +50,18 @@ export class AuthService {
   }
 
   async signUp({ login, password }: SignUpDto) {
-    const foundUser = await this.usersService.findByName(login);
-    if (foundUser) {
-      throw new BadRequestException(`User with login:${login} already exist!`);
-    }
+    const newUser = await this.usersService.createUser({ login, password });
 
-    return await this.usersService.createUser({ login, password });
+    const [accessToken, refreshToken] = await Promise.all([
+      this.generateAccessToken(newUser.id, login),
+      this.generateRefreshToken(newUser.id, login),
+    ]);
+
+    return {
+      accessToken,
+      refreshToken,
+      id: newUser.id,
+    };
   }
 
   async refresh({ refreshToken }: RefreshTokenDto) {

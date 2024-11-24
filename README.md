@@ -24,17 +24,17 @@ rename env.example into .env
 
 ## Installing NPM modules
 
-switch node to the v.22.8.0
+switch node to the v.22.9.0
 
 ```
 npm ci __if it will error__ - use -> `npm ci --legacy-peer-deeps`
 
 ```
 
-## Running application with docker container
+## Running application
 
 ```
-npm run docker:start (by default port for app used __4000__)
+npm run start:dev
 ```
 
 After starting the app on port (4000 as default) you can open
@@ -42,12 +42,15 @@ in your browser OpenAPI documentation by typing <http://localhost:4000/doc/>.
 
 ## Testing
 
-After **application running** (npm start) _open new terminal_ and enter:
+After **application running** (npm run start:dev) _open new terminal_ and enter:
 
 To run all tests without authorization
 
+Before running all test cases be sure that your postgres service is already started and inside Tables you don't have user with login:TEST_AUTH_LOGIN
+If it needed clear user table inside pgAdmin interface of postgres
+
 ```
-npm run test
+npm run test:auth
 ```
 
 ### Auto-fix and format
@@ -199,3 +202,9 @@ this app contain next entities, for all id's generating used uuid version4 prein
   - `POST localhost:4000/favs/artist/:id` - add artist to the favorites
   - `DELETE localhost:4000/favs/artist/:id` - delete artist from favorites
   ```
+
+  - `Authorization with JWT token`
+
+  - `POST localhost:4000/auth/signup` - create new user and returns accessToken/refreshToken/id data via success response
+    - `POST localhost:4000/auth/login` - login user inside app returns accessToken/refreshToken/id data via success response
+    - `POST localhost:4000/auth/refresh` - generate new pairs of tokens for provided refreshToken inside request's body
